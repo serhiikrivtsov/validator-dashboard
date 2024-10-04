@@ -42,10 +42,10 @@ echo "$environment environment with $processor found."
 
 
 # read -p "During this early stage of Betanet the Shardeum team will be collecting some performance and debugging info from your node to help improve future versions of the software.
-This is only temporary and will be discontinued as we get closer to mainnet.
-Thanks for running a node and helping to make Shardeum better.
-
-By running this installer, you agree to allow the Shardeum team to collect this data. (Y/n)?: " WARNING_AGREE
+# This is only temporary and will be discontinued as we get closer to mainnet.
+# Thanks for running a node and helping to make Shardeum better.
+#
+# By running this installer, you agree to allow the Shardeum team to collect this data. (Y/n)?: " WARNING_AGREE
 
 # Echo user's response, or indicate if no response was provided
 if [ -z "$WARNING_AGREE" ]; then
@@ -301,7 +301,7 @@ if [ ! -z "${CONTAINER_ID}" ]; then
     status=$(awk '/state:/ {print $2}' <<< $status)
     if [ "$status" = "active" ] || [ "$status" = "syncing" ]; then
       # read -p "Your node is $status and upgrading will cause the node to leave the network unexpectedly and lose the stake amount.
-      Do you really want to upgrade now (y/N)?" REALLYUPGRADE
+      # Do you really want to upgrade now (y/N)?" REALLYUPGRADE
       REALLYUPGRADE=$(echo "$REALLYUPGRADE" | tr '[:upper:]' '[:lower:]')
       REALLYUPGRADE=${REALLYUPGRADE:-n}
 
@@ -313,8 +313,8 @@ if [ ! -z "${CONTAINER_ID}" ]; then
     fi
   else
     # read -p "The installer was unable to determine if the existing node is active.
-    An active node unexpectedly leaving the network will lose it's stake amount.
-    Do you really want to upgrade now (y/N)?" REALLYUPGRADE
+    # An active node unexpectedly leaving the network will lose it's stake amount.
+    # Do you really want to upgrade now (y/N)?" REALLYUPGRADE
     REALLYUPGRADE=$(echo "$REALLYUPGRADE" | tr '[:upper:]' '[:lower:]')
     REALLYUPGRADE=${REALLYUPGRADE:-n}
 
@@ -446,7 +446,7 @@ while :; do
   else
     echo "Port out of range, try again"
   fi
-  read -p "Enter the second port (1025-65536) for p2p communication (default $SHMINT_DEFAULT): " SHMINT
+  # read -p "Enter the second port (1025-65536) for p2p communication (default $SHMINT_DEFAULT): " SHMINT
   SHMINT=${SHMINT:-$SHMINT_DEFAULT}
   [[ $SHMINT =~ ^[0-9]+$ ]] || { echo "Enter a valid port"; continue; }
   if ((SHMINT >= 1025 && SHMINT <= 65536)); then
