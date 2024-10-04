@@ -41,32 +41,7 @@ fi
 echo "$environment environment with $processor found."
 
 
-# Check if any hashing command is available
-if ! (command -v openssl > /dev/null || command -v shasum > /dev/null || command -v sha256sum > /dev/null); then
-  echo "No supported hashing commands found."
-  read -p "Would you like to install openssl? (y/n) " -n 1 -r
-  echo
-
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    # Detect package manager and install openssl
-    if command -v apt-get > /dev/null; then
-      sudo apt-get update && sudo apt-get install -y openssl
-    elif command -v yum > /dev/null; then
-      sudo yum install -y openssl
-    elif command -v dnf > /dev/null; then
-      sudo dnf install -y openssl
-    else
-      echo "Your package manager is not supported. Please install openssl manually."
-      exit 1
-    fi
-  else
-    echo "Please install openssl, shasum, or sha256sum and try again."
-    exit 1
-  fi
-fi
-
-
-read -p "During this early stage of Betanet the Shardeum team will be collecting some performance and debugging info from your node to help improve future versions of the software.
+# read -p "During this early stage of Betanet the Shardeum team will be collecting some performance and debugging info from your node to help improve future versions of the software.
 This is only temporary and will be discontinued as we get closer to mainnet.
 Thanks for running a node and helping to make Shardeum better.
 
@@ -89,7 +64,7 @@ then
   exit
 fi
 
-read -p "What base directory should the node use (default ~/.shardeum): " input
+# read -p "What base directory should the node use (default ~/.shardeum): " input
 
 # Set default value if input is empty
 input=${input:-~/.shardeum}
@@ -325,7 +300,7 @@ if [ ! -z "${CONTAINER_ID}" ]; then
     # The command ran successfully
     status=$(awk '/state:/ {print $2}' <<< $status)
     if [ "$status" = "active" ] || [ "$status" = "syncing" ]; then
-      read -p "Your node is $status and upgrading will cause the node to leave the network unexpectedly and lose the stake amount.
+      # read -p "Your node is $status and upgrading will cause the node to leave the network unexpectedly and lose the stake amount.
       Do you really want to upgrade now (y/N)?" REALLYUPGRADE
       REALLYUPGRADE=$(echo "$REALLYUPGRADE" | tr '[:upper:]' '[:lower:]')
       REALLYUPGRADE=${REALLYUPGRADE:-n}
@@ -337,7 +312,7 @@ if [ ! -z "${CONTAINER_ID}" ]; then
       echo "Validator process is not online"
     fi
   else
-    read -p "The installer was unable to determine if the existing node is active.
+    # read -p "The installer was unable to determine if the existing node is active.
     An active node unexpectedly leaving the network will lose it's stake amount.
     Do you really want to upgrade now (y/N)?" REALLYUPGRADE
     REALLYUPGRADE=$(echo "$REALLYUPGRADE" | tr '[:upper:]' '[:lower:]')
@@ -381,99 +356,16 @@ cat << EOF
 
 EOF
 
-read -p "Do you want to run the web based Dashboard? (Y/n): " RUNDASHBOARD
+# read -p "Do you want to run the web based Dashboard? (Y/n): " RUNDASHBOARD
 RUNDASHBOARD=$(echo "$RUNDASHBOARD" | tr '[:upper:]' '[:lower:]')
 RUNDASHBOARD=${RUNDASHBOARD:-y}
 
-if [ "$PREVIOUS_PASSWORD" != "none" ]; then
-  read -p "Do you want to change the password for the Dashboard? (y/N): " CHANGEPASSWORD
-  CHANGEPASSWORD=$(echo "$CHANGEPASSWORD" | tr '[:upper:]' '[:lower:]')
-  CHANGEPASSWORD=${CHANGEPASSWORD:-n}
-else
-  CHANGEPASSWORD="y"
-fi
-
-
-read_password() {
-  local CHARCOUNT=0
-  local PASSWORD=""
-  while IFS= read -p "$PROMPT" -r -s -n 1 CHAR
-  do
-    # Enter - accept password
-    if [[ $CHAR == $'\0' ]] ; then
-      break
-    fi
-    # Backspace
-    if [[ $CHAR == $'\177' ]] ; then
-      if [ $CHARCOUNT -gt 0 ] ; then
-        CHARCOUNT=$((CHARCOUNT-1))
-        PROMPT=$'\b \b'
-        PASSWORD="${PASSWORD%?}"
-      else
-        PROMPT=''
-      fi
-    else
-      CHARCOUNT=$((CHARCOUNT+1))
-      PROMPT='*'
-      PASSWORD+="$CHAR"
-    fi
-  done
-  echo $PASSWORD
-}
-
-if [ "$CHANGEPASSWORD" = "y" ]; then
-  valid_pass=false
-  while [ "$valid_pass" = false ] ;
-  do
-    echo -n -e "Password requirements: min 8 characters, at least 1 lower case letter, at least 1 upper case letter, at least 1 number, at least 1 special character !@#$%^&*()_+$ \nSet the password to access the Dashboard:"
-    DASHPASS=$(read_password)
-
-    # Check password length
-    if (( ${#DASHPASS} < 8 )); then
-        echo -e "\nInvalid password! Too short.\n"
-
-    # Check for at least one lowercase letter
-    elif ! [[ "$DASHPASS" =~ [a-z] ]]; then
-        echo -e "\nInvalid password! Must contain at least one lowercase letter.\n"
-
-    # Check for at least one uppercase letter
-    elif ! [[ "$DASHPASS" =~ [A-Z] ]]; then
-        echo -e "\nInvalid password! Must contain at least one uppercase letter.\n"
-
-    # Check for at least one number
-    elif ! [[ "$DASHPASS" =~ [0-9] ]]; then
-        echo -e "\nInvalid password! Must contain at least one number.\n"
-
-    # Check for at least one special character
-    elif ! [[ "$DASHPASS" =~ [!@#$%^\&*()_+$] ]]; then
-        echo -e "\nInvalid password! Must contain at least one special character !@#$%^&*()_+$.\n"
-
-    # Password is valid
-    else
-        valid_pass=true
-        echo "\nPassword set successfully."
-    fi
-  done
-
-  # Hash the password using the fallback mechanism
-  DASHPASS=$(hash_password "$DASHPASS")
-else
-  DASHPASS=$PREVIOUS_PASSWORD
-  if ! [[ $DASHPASS =~ ^[0-9a-f]{64}$ ]]; then
-    DASHPASS=$(hash_password "$DASHPASS")
-  fi
-fi
-
-if [ -z "$DASHPASS" ]; then
-  echo -e "\nFailed to hash the password. Please ensure you have openssl"
-  exit 1
-fi
-
 echo # New line after inputs.
+DASHPASS=262362d62f22033c627202af5be4832d1dcc0beb233a5f767366640ad4bd127f
 # echo "Password saved as:" $DASHPASS #DEBUG: TEST PASSWORD WAS RECORDED AFTER ENTERED.
 
 while :; do
-  read -p "Enter the port (1025-65536) to access the web based Dashboard (default $DASHPORT_DEFAULT): " DASHPORT
+  # read -p "Enter the port (1025-65536) to access the web based Dashboard (default $DASHPORT_DEFAULT): " DASHPORT
   DASHPORT=${DASHPORT:-$DASHPORT_DEFAULT}
   [[ $DASHPORT =~ ^[0-9]+$ ]] || { echo "Enter a valid port"; continue; }
   if ((DASHPORT >= 1025 && DASHPORT <= 65536)); then
@@ -485,7 +377,7 @@ while :; do
 done
 
 while :; do
-  read -p "If you wish to set an explicit external IP, enter an IPv4 address (default=$EXTERNALIP_DEFAULT): " EXTERNALIP
+  # read -p "If you wish to set an explicit external IP, enter an IPv4 address (default=$EXTERNALIP_DEFAULT): " EXTERNALIP
   EXTERNALIP=${EXTERNALIP:-$EXTERNALIP_DEFAULT}
 
   if [ "$EXTERNALIP" == "auto" ]; then
@@ -515,7 +407,7 @@ while :; do
 done
 
 while :; do
-  read -p "If you wish to set an explicit internal IP, enter an IPv4 address (default=$INTERNALIP_DEFAULT): " INTERNALIP
+  # read -p "If you wish to set an explicit internal IP, enter an IPv4 address (default=$INTERNALIP_DEFAULT): " INTERNALIP
   INTERNALIP=${INTERNALIP:-$INTERNALIP_DEFAULT}
 
   if [ "$INTERNALIP" == "auto" ]; then
@@ -546,7 +438,7 @@ done
 
 while :; do
   echo "To run a validator on the Sphinx network, you will need to open two ports in your firewall."
-  read -p "This allows p2p communication between nodes. Enter the first port (1025-65536) for p2p communication (default $SHMEXT_DEFAULT): " SHMEXT
+  # read -p "This allows p2p communication between nodes. Enter the first port (1025-65536) for p2p communication (default $SHMEXT_DEFAULT): " SHMEXT
   SHMEXT=${SHMEXT:-$SHMEXT_DEFAULT}
   [[ $SHMEXT =~ ^[0-9]+$ ]] || { echo "Enter a valid port"; continue; }
   if ((SHMEXT >= 1025 && SHMEXT <= 65536)); then
